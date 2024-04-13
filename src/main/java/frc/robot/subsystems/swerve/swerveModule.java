@@ -17,14 +17,11 @@ public class swerveModule {
 
 	private PID pid;
 
-	//motor power
-
-	private volatile double turnPower;
-	private volatile double drivePower;
-
 	//turning degrees of turningmotor
 
-	private volatile double turnValue;
+	private double turnValue;
+
+	private double lastAngle;
 
 	/**********functions**********/
 
@@ -38,10 +35,44 @@ public class swerveModule {
 	//set motor power
 
 	public void setpoint(double speed, double angle){
-		calculate(speed, angle);
+		double error = angle - turnValue;//SP - PV 
+
+		if(error > 180) error -= 360;
+		else if(error < -180) error += 360;
+
+		if(-0.25 < error && error < 0.25){
+			pid.resetIntergral();
+			error = 0;
+		}
+
+		final double turnPower = 
+			tools.bounding(pid.calculate(tools.bounding(error / 45.0, -1, 1)), -1, 1);
+
+		final double drivePower = 
+			speed * tools.bounding(Math.abs(error / -90.0 + 1.5) * 0.5, 0, 1);
 
 		turningMotor.set(TalonSRXControlMode.PercentOutput, -turnPower);
 		driveMotor.set(drivePower);
+
+		lastAngle = angle;
+	}
+
+	public void setpoint(){
+		double error = lastAngle - turnValue;//SP - PV 
+
+		if(error > 180) error -= 360;
+		else if(error < -180) error += 360;
+
+		if(-0.25 < error && error < 0.25){
+			pid.resetIntergral();
+			error = 0;
+		}
+
+		final double turnPower = 
+			tools.bounding(pid.calculate(tools.bounding(error / 45.0, -1, 1)), -1, 1);
+
+		turningMotor.set(TalonSRXControlMode.PercentOutput, -turnPower);
+		driveMotor.set(0);
 	}
 
 	//get encoder value
@@ -60,21 +91,4 @@ public class swerveModule {
 		pid = new PID(kp, ki, kd);
 	}
 
-	//calculate turningmotor & drivemotor power
-	public void calculate(double speed, double angle) {
-		double error = angle - turnValue;//SP - PV 
-
-		if(error > 180) error -= 360;
-		else if(error < -180) error += 360;
-
-		speed *= tools.bounding(Math.abs(error / -90.0 + 1.5) * 0.5, 0, 1);
-
-		if(-0.25 < error && error < 0.25){
-			pid.resetIntergral();
-			error = 0;
-		}
-
-		turnPower = tools.bounding(pid.calculate(tools.bounding(error / 45.0, -1, 1)), -1, 1);
-		drivePower = speed;
-	}
 }

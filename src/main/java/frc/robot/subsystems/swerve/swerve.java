@@ -22,8 +22,8 @@ public class swerve{
 
   private static final double length = 1, width = 1;
   private static final double r = Math.sqrt(length*length + width*width);
-  private static final double kMove = 0.6;
-  private static final double kTurn = 0.6;
+  private static final double kMove = 1;
+  private static final double kTurn = 1;
 
   //functions
 
@@ -39,26 +39,34 @@ public class swerve{
     rf.name = "Right_front";
     rr.name = "Right_rear";
 
-    lf.setPID(1, 0, 0);
-    lr.setPID(1, 0, 0);
-    rf.setPID(1, 0, 0);
-    rr.setPID(1, 0, 0);
+    lf.setPID(1, 1e-3, 0);
+    lr.setPID(1, 1e-3, 0);
+    rf.setPID(1, 1e-3, 0);
+    rr.setPID(1, 1e-3, 0);
 
     move(0, 0, 0);
   }
 
   //move the robot 
   public static void move(double x, double y, double turn) {
+    if(x == 0 && y == 0 && turn == 0){
+      lf.setpoint();
+      lr.setpoint();
+      rf.setpoint();
+      rr.setpoint();
+
+      return;
+    }
+
     //convert the vector of driver's heading to the vector of robot's heading
-    
+
     // final double tempVector[] = convertHeading(x, y);
 
     // x = tempVector[0];
     // y = tempVector[1];
 
-    x = x * kMove;
-    y = y * kMove;
-
+    x *= kMove;
+    y *= kMove;
     turn *= kTurn;
 
     //calculate vector (x, y)
@@ -70,10 +78,10 @@ public class swerve{
 
     //calculate turn degrees
 
-    double lf_degrees = tools.toDegrees(lf_x, lf_y);
-    double lr_degrees = tools.toDegrees(lr_x, lr_y);
-    double rf_degrees = tools.toDegrees(rf_x, rf_y);
-    double rr_degrees = tools.toDegrees(rr_x, rr_y);
+    final double lf_degrees = tools.toDegrees(lf_x, lf_y);
+    final double lr_degrees = tools.toDegrees(lr_x, lr_y);
+    final double rf_degrees = tools.toDegrees(rf_x, rf_y);
+    final double rr_degrees = tools.toDegrees(rr_x, rr_y);
 
     //calculate motor speed
 
