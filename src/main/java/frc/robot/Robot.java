@@ -10,8 +10,8 @@ import frc.robot.utils.sensors;
 import edu.wpi.first.wpilibj.Joystick;
 
 public class Robot extends TimedRobot {
+  private static final Joystick player1 = new Joystick(0);
 
-  private static Joystick player1 = new Joystick(0);
   @Override
   public void robotInit() {
     sensors.initGyro();
@@ -47,7 +47,7 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledPeriodic() {}
 
-  /************************Functions************************/
+  /*********************** Functions ***********************/
   
   public void singlePlayer() {
     //Swerve

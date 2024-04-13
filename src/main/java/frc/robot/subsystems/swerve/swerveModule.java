@@ -10,30 +10,25 @@ import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.*;
 
 public class swerveModule {
-	public TalonSRX turningMotor;
-	public CANSparkMax driveMotor;
+	public final TalonSRX turningMotor;
+	public final CANSparkMax driveMotor;
 
 	public String name = "";
 
-	private PID pid;
-
-	//turning degrees of turningmotor
+	public PID pid;
 
 	private double turnValue;
-
 	private double lastAngle;
 
 	/**********functions**********/
 
 	//init
-
 	public swerveModule(int turningMotorID, int driveMotorID){
 		turningMotor = new TalonSRX(turningMotorID);
 		driveMotor = new CANSparkMax(driveMotorID, CANSparkLowLevel.MotorType.kBrushed);
 	}
 
 	//set motor power
-
 	public void setpoint(double speed, double angle){
 		double error = angle - turnValue;//SP - PV 
 
@@ -57,7 +52,7 @@ public class swerveModule {
 		lastAngle = angle;
 	}
 
-	public void setpoint(){
+	public void coastMove(){
 		double error = lastAngle - turnValue;//SP - PV 
 
 		if(error > 180) error -= 360;
@@ -76,7 +71,6 @@ public class swerveModule {
 	}
 
 	//get encoder value
-
 	public void getEncValue(){
 		turnValue = -(double)((int)turningMotor.getSelectedSensorPosition() & 0x03ff) * 0.3515625;
 
@@ -84,11 +78,6 @@ public class swerveModule {
 		if(turnValue >= 360) turnValue -= 360;
 
 		SmartDashboard.putNumber(name, turnValue);
-	}
-
-	//set pid value(kp, ki, kd)
-	public void setPID(double kp, double ki, double kd){
-		pid = new PID(kp, ki, kd);
 	}
 
 }

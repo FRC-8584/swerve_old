@@ -3,31 +3,31 @@ package frc.robot.subsystems.swerve;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 
 import frc.robot.utils.tools;
+import frc.robot.utils.PID;
 import frc.robot.utils.sensors;
 
 public class swerve{
-  //swerve motor modules
+  /**********swerve motor modules**********/
 
-	public static swerveModule lf = new swerveModule(1, 5);
-  public static swerveModule lr = new swerveModule(4, 8);
-  public static swerveModule rf = new swerveModule(2, 6);
-  public static swerveModule rr = new swerveModule(3, 7);
+	public static final swerveModule lf = new swerveModule(1, 5);
+  public static final swerveModule lr = new swerveModule(4, 8);
+  public static final swerveModule rf = new swerveModule(2, 6);
+  public static final swerveModule rr = new swerveModule(3, 7);
 
-  //variables
+  /**********variables**********/
 
   private static volatile double robotHeading;
   private static double driverHeading = 0;
 
-  //constants
+  /**********constants**********/
 
   private static final double length = 1, width = 1;
   private static final double r = Math.sqrt(length*length + width*width);
   private static final double kMove = 1;
   private static final double kTurn = 1;
 
-  //functions
+  /**********functions**********/
 
-  //init 
   public static void init() {
     lf.turningMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
     lr.turningMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
@@ -39,21 +39,27 @@ public class swerve{
     rf.name = "Right_front";
     rr.name = "Right_rear";
 
-    lf.setPID(1, 1e-3, 0);
-    lr.setPID(1, 1e-3, 0);
-    rf.setPID(1, 1e-3, 0);
-    rr.setPID(1, 1e-3, 0);
+    lf.pid = new PID(1, 1e-3, 0);
+    lr.pid = new PID(1, 1e-3, 0);
+    rf.pid = new PID(1, 1e-3, 0);
+    rr.pid = new PID(1, 1e-3, 0);
 
     move(0, 0, 0);
   }
 
-  //move the robot 
+  /**
+   * Move the robot.
+   * 
+   * @param x : vector x force (driver heading)
+   * @param y : vector y force (driver heading)
+   * @param turn : turn force
+   */
   public static void move(double x, double y, double turn) {
-    if(x == 0 && y == 0 && turn == 0){
-      lf.setpoint();
-      lr.setpoint();
-      rf.setpoint();
-      rr.setpoint();
+    if(x == 0 && y == 0 && turn == 0){//doesn't move
+      lf.coastMove();
+      lr.coastMove();
+      rf.coastMove();
+      rr.coastMove();
 
       return;
     }
@@ -113,7 +119,9 @@ public class swerve{
     return;
   }
 
-  //get turningmotor encoder value 
+  /**
+   * Get turnmotor encoder value.
+   */
   public static void getEncValue() {
     lf.getEncValue();
     lr.getEncValue();
@@ -121,7 +129,11 @@ public class swerve{
     rr.getEncValue();
   }
 
-  //get robot heading 
+  /**
+   * Get robot heading.
+   * 
+   * @return robot heading (0 =< value < 360 degrees)
+   */
   public static void getRobotHeading() {
     if(sensors.gyro.isInitialized()){
       robotHeading = sensors.gyro.getVector()[0];
