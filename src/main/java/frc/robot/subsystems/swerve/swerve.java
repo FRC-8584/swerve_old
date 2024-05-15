@@ -16,8 +16,10 @@ public class swerve{
 
   /**********variables**********/
 
-  private static volatile double robotHeading;
-  private static double driverHeading = 0;
+  private double robotHeading;
+  private double driverHeading = 0;
+
+  private boolean startMoving = true;
 
   /**********constants**********/
 
@@ -28,7 +30,7 @@ public class swerve{
 
   /**********functions**********/
 
-  public static void init() {
+  public void swerve() {
     lf.turningMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
     lr.turningMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
     rf.turningMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
@@ -54,12 +56,14 @@ public class swerve{
    * @param y : vector y force (driver heading)
    * @param turn : turn force
    */
-  public static void move(double x, double y, double turn) {
+  public void move(double x, double y, double turn) {
     if(x == 0 && y == 0 && turn == 0){//doesn't move
-      lf.coastMove();
-      lr.coastMove();
-      rf.coastMove();
-      rr.coastMove();
+      lf.stopMoving();
+      lr.stopMoving();
+      rf.stopMoving();
+      rr.stopMoving();
+
+      startMoving = true;
 
       return;
     }
@@ -111,6 +115,19 @@ public class swerve{
 
 		//setpoint
 
+    if(startMoving == true){
+      if(lf.getTurnError() != 0 || lr.getTurnError() != 0 || rf.getTurnError() != 0 || rr.getTurnError() != 0){
+        lf.setpoint(0, lf_degrees);
+        lr.setpoint(0, lr_degrees);
+        rf.setpoint(0, rf_degrees);
+        rr.setpoint(0, rr_degrees);
+
+        return;
+      }
+      else{
+        startMoving = false;
+      }
+    }
     lf.setpoint(lf_speed, lf_degrees);
     lr.setpoint(lr_speed, lr_degrees);
     rf.setpoint(rf_speed, rf_degrees);
@@ -122,7 +139,7 @@ public class swerve{
   /**
    * Get turnmotor encoder value.
    */
-  public static void getEncValue() {
+  public void getEncValue() {
     lf.getEncValue();
     lr.getEncValue();
     rf.getEncValue();
@@ -134,7 +151,7 @@ public class swerve{
    * 
    * @return robot heading (0 =< value < 360 degrees)
    */
-  public static void getRobotHeading() {
+  public void getRobotHeading() {
     if(sensors.gyro.isInitialized()){
       robotHeading = sensors.gyro.getVector()[0];
     }
@@ -151,7 +168,7 @@ public class swerve{
    * 
    * @return a vector {x, y} (robot heading)
    */
-  private static double[] convertHeading(double x, double y) {
+  private double[] convertHeading(double x, double y) {
     return tools.toVector(
       Math.sqrt(x*x + y*y),
       tools.toDegrees(x, y) - (robotHeading - driverHeading)

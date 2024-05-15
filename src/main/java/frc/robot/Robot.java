@@ -11,11 +11,12 @@ import edu.wpi.first.wpilibj.Joystick;
 
 public class Robot extends TimedRobot {
   private static final Joystick player1 = new Joystick(0);
+  private swerve swerve;
 
   @Override
   public void robotInit() {
     sensors.initGyro();
-    swerve.init();
+    swerve = new swerve();
   }
 
   @Override

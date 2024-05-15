@@ -18,7 +18,7 @@ public class swerveModule {
 	public PID pid;
 
 	private double turnValue;
-	private double lastAngle;
+	private double error;
 
 	/**********functions**********/
 
@@ -30,12 +30,12 @@ public class swerveModule {
 
 	//set motor power
 	public void setpoint(double speed, double angle){
-		double error = angle - turnValue;//SP - PV 
+		error = angle - turnValue;//SP - PV 
 
 		if(error > 180) error -= 360;
 		else if(error < -180) error += 360;
 
-		if(-0.25 < error && error < 0.25){
+		if(-1 < error && error < 1){
 			pid.resetIntergral();
 			error = 0;
 		}
@@ -48,26 +48,17 @@ public class swerveModule {
 
 		turningMotor.set(TalonSRXControlMode.PercentOutput, -turnPower);
 		driveMotor.set(drivePower);
-
-		lastAngle = angle;
 	}
 
-	public void coastMove(){
-		double error = lastAngle - turnValue;//SP - PV 
+	public void stopMoving(){
+		pid.resetIntergral();
 
-		if(error > 180) error -= 360;
-		else if(error < -180) error += 360;
-
-		if(-0.25 < error && error < 0.25){
-			pid.resetIntergral();
-			error = 0;
-		}
-
-		final double turnPower = 
-			tools.bounding(pid.calculate(tools.bounding(error / 45.0, -1, 1)), -1, 1);
-
-		turningMotor.set(TalonSRXControlMode.PercentOutput, -turnPower);
+		turningMotor.set(TalonSRXControlMode.PercentOutput, 0);
 		driveMotor.set(0);
+	}
+
+	public double getTurnError(){
+		return error;
 	}
 
 	//get encoder value
