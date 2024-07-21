@@ -26,7 +26,7 @@ public class SwerveModule {
 		driveMotor = new CANSparkMax(driveMotorID, CANSparkLowLevel.MotorType.kBrushed);
 		this.name = name;
 
-		pid = new PID(8, 1e-3, 0.3);
+		pid = new PID(8, 1e-4, 0.01);
 	}
 
 	//set motor power
@@ -36,7 +36,7 @@ public class SwerveModule {
 		error = error > 180 ? error - 360 : error;
 		error = error < -180 ? error + 360 : error;
 
-		if(-5 < error && error < 5){
+		if(-3 < error && error < 3){
 			pid.resetIntergral();
 			error = 0;
 		}
@@ -48,7 +48,7 @@ public class SwerveModule {
 		tools.bounding(turnPower, -1, 1);
 
 		turningMotor.set(TalonSRXControlMode.PercentOutput, -turnPower);
-		driveMotor.set(0);
+		driveMotor.set(speed);
 	}
 
 	public void stop() {
