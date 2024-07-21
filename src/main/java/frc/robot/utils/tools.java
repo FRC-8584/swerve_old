@@ -2,19 +2,16 @@ package frc.robot.utils;
 
 public class tools {
 	//vector (x, y) convert to degrees 
-	public static double toDegrees(double x, double y) {
+	public static double toDegrees(final double x, final double y) {
 		if(x == 0 && y == 0) return 0;
 
 		double angle = 90 - Math.atan2(y, x) * 57.2957805;//... / 3.1415926 * 180.0
 
-    if(angle < 0) angle += 360;
-    else if(angle > 360) angle -= 360;
-
-		return angle;
+    return angle < 0 ? angle + 360 : angle;
 	}
 
 	//degrees convert to vector (x, y) 
-	public static double[] toVector(double radius, double angle) {
+	public static double[] toVector(final double radius, double angle) {
     if(angle < 0) angle += 360;
     else if(angle > 360) angle -= 360;
 
@@ -24,9 +21,9 @@ public class tools {
 	}
 
 	//bounding 
-	public static double bounding(double pos, double min, double max) {
-		if(pos < min) pos = min;
-		else if(pos > max) pos = max;
+	public static double bounding(double pos, final double min, final double max) {
+		pos = pos < min ? min : pos;
+		pos = pos > max ? max : pos;
 
 		return pos;
 	}

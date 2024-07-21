@@ -324,13 +324,13 @@ public class BNO055 {
 	private void update() {
 		currentTime = Timer.getFPGATimestamp(); //seconds
 		if(!initialized) {
-//			System.out.println("State: " + state + ".  curr: " + currentTime
-//					+ ", next: " + nextTime);
 			
-			//Step through process of initializing the sensor in a non-
-			//  blocking manner. This sequence of events follows the process
-			//  defined in the original adafruit source as closely as possible.
-			//  XXX: It's likely some of these delays can be optimized out.
+			/*
+			Step through process of initializing the sensor in a non-
+			blocking manner. This sequence of events follows the process
+			defined in the original adafruit source as closely as possible.
+			XXX: It's likely some of these delays can be optimized out
+			*/
 			switch(state) {
 			case 0:
 				//Wait for the sensor to be present
@@ -340,10 +340,11 @@ public class BNO055 {
 				} else {
 					//Sensor present, go to next state
 					sensorPresent = true;
-					state++;
 					nextTime = Timer.getFPGATimestamp() + 0.050;
+					state++;
 				}
 				break;
+
 			case 1:
 				if(currentTime >= nextTime) {
 					//Switch to config mode (just in case since this is the default)
@@ -352,6 +353,7 @@ public class BNO055 {
 					state++;
 				}
 				break;
+
 			case 2:
 				// Reset
 				if(currentTime >= nextTime){
@@ -359,15 +361,15 @@ public class BNO055 {
 					state++;
 				}
 				break;
+
 			case 3:
 				//Wait for the sensor to be present
 				if((0xFF & read8(reg_t.BNO055_CHIP_ID_ADDR)) == BNO055_ID) {
-					//Sensor present, go to next state
-					state++;
-					//Log current time
 					nextTime = Timer.getFPGATimestamp() + 0.050;
+					state++;
 				}
 				break;
+
 			case 4:
 				//Wait at least 50ms
 				if(currentTime >= nextTime) {
@@ -377,6 +379,7 @@ public class BNO055 {
 					state++;
 				}
 				break;
+
 			case 5:
 				//Use external crystal - 32.768 kHz
 				if(currentTime >= nextTime) {
@@ -385,6 +388,7 @@ public class BNO055 {
 					state++;
 				}
 				break;
+
 			case 6:
 				if(currentTime >= nextTime) {
 					write8(reg_t.BNO055_SYS_TRIGGER_ADDR, (byte) 0x80);
@@ -392,6 +396,7 @@ public class BNO055 {
 					state++;
 				}
 				break;
+
 			case 7:
 				//Set operating mode to mode requested at instantiation
 				if(currentTime >= nextTime) {
@@ -400,13 +405,16 @@ public class BNO055 {
 					state++;
 				}
 				break;
+
 			case 8:
 				if(currentTime >= nextTime) {
 					state++;
 				}
+
 			case 9:
 				initialized = true;
 				break;
+
 			default:
 				//Should never get here - Fail safe
 				initialized = false;
@@ -428,9 +436,12 @@ public class BNO055 {
 		// Read vector data (6 bytes)
 		readLen(requestedVectorType.getVal(), positionVector);
 
-		x = (short)((positionVector[0] & 0xFF) | ((positionVector[1] << 8) & 0xFF00));
-		y = (short)((positionVector[2] & 0xFF) | ((positionVector[3] << 8) & 0xFF00));
-		z = (short)((positionVector[4] & 0xFF) | ((positionVector[5] << 8) & 0xFF00));
+		x = 
+			(short)((positionVector[0] & 0xFF) | ((positionVector[1] << 8) & 0xFF00));
+		y = 
+			(short)((positionVector[2] & 0xFF) | ((positionVector[3] << 8) & 0xFF00));
+		z = 
+			(short)((positionVector[4] & 0xFF) | ((positionVector[5] << 8) & 0xFF00));
 
 		/* Convert the value to an appropriate range (section 3.6.4) */
 		/* and assign the value to the Vector type */
@@ -465,7 +476,7 @@ public class BNO055 {
 		
 		//calculate turns
 		headingDiff = xyz[0] - pos[0];
-		if(Math.abs(headingDiff) >= 360) {
+		if(Math.abs(headingDiff) >= 350) {
 			//We've traveled past the zero heading position
 			if(headingDiff > 0) {
 				turns++;
@@ -489,6 +500,18 @@ public class BNO055 {
 	private void setMode(int mode) {
 		_mode = mode;
 		write8(reg_t.BNO055_OPR_MODE_ADDR, (byte) _mode);
+	}
+
+	public int getMode(){
+		return _mode;
+	}
+
+	public void setVectorType(vector_type_t vectortype){
+		requestedVectorType = vectortype;
+	}
+
+	public vector_type_t getVectorType(){
+		return requestedVectorType;
 	}
 
 	/**

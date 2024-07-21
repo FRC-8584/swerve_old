@@ -1,128 +1,89 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.subsystems.swerve.swerve;
-
-import frc.robot.utils.tools;
-import frc.robot.utils.sensors;
-
-import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends TimedRobot {
-  private static final Joystick player1 = new Joystick(0);
-  private swerve swerve;
+  private Command m_autonomousCommand;
 
+  private RobotContainer m_robotContainer;
+
+  /**
+   * This function is run when the robot is first started up and should be used for any
+   * initialization code.
+   */
   @Override
   public void robotInit() {
-    sensors.initGyro();
-    swerve = new swerve();
+    // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
+    // autonomous chooser on the dashboard.
+    m_robotContainer = new RobotContainer();
   }
 
+  /**
+   * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
+   * that you want ran during disabled, autonomous, teleoperated and test.
+   *
+   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
+   * SmartDashboard integrated updating.
+   */
   @Override
   public void robotPeriodic() {
-    swerve.getEncValue();
-    swerve.getRobotHeading();
+    CommandScheduler.getInstance().run();
   }
 
-  @Override
-  public void autonomousInit() {}
-
-  @Override
-  public void autonomousPeriodic() {}
-
-  @Override
-  public void teleopInit() {
-    swerve.move(0, 0, 0);
-  }
-
-  @Override
-  public void teleopPeriodic() {
-    System.out.println(sensors.gyro.getVector()[0]);
-    singlePlayer();
-  }
-
+  /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {}
 
   @Override
   public void disabledPeriodic() {}
 
-  /*********************** Functions ***********************/
-  
-  public void singlePlayer() {
-    //Swerve
-    double x, y, turnRobot;
+  /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
+  @Override
+  public void autonomousInit() {
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-    // ~ Player1 ~
-
-    x               =  player1.getRawAxis(0);
-    y               = -player1.getRawAxis(1);
-    turnRobot       =  player1.getRawAxis(4);
-
-    /***** Check deadband *****/
-
-    if(-0.05 < x && x < 0.05) x = 0;
-    if(-0.05 < y && y < 0.05) y = 0;
-    if(-0.05 < turnRobot && turnRobot < 0.05) turnRobot = 0;
-
-    /******* Set point *******/
-
-    swerve.move(x, y, turnRobot);
-
-    SmartDashboard.putNumber("input", tools.toDegrees(x, y));
+    // schedule the autonomous command (example)
+    if (m_autonomousCommand != null) {
+      m_autonomousCommand.schedule();
+    }
   }
+
+  /** This function is called periodically during autonomous. */
+  @Override
+  public void autonomousPeriodic() {}
+
+  @Override
+  public void teleopInit() {
+    // This makes sure that the autonomous stops running when
+    // teleop starts running. If you want the autonomous to
+    // continue until interrupted by another command, remove
+    // this line or comment it out.
+    if (m_autonomousCommand != null) {
+      m_autonomousCommand.cancel();
+    }
+  }
+
+  /** This function is called periodically during operator control. */
+  @Override
+  public void teleopPeriodic() {}
+
+  @Override
+  public void testInit() {
+    // Cancels all running commands at the start of test mode.
+    CommandScheduler.getInstance().cancelAll();
+  }
+
+  /** This function is called periodically during test mode. */
+  @Override
+  public void testPeriodic() {}
+
+  /** This function is called once when the robot is first started up. */
+  @Override
+  public void simulationInit() {}
+
+  /** This function is called periodically whilst in simulation. */
+  @Override
+  public void simulationPeriodic() {}
 }
-
-/*
-
-
-
-
-
-
-
-
-
- 
-`                   * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-`                   * O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O *
-`                   * O                                                                     O *
-`                   * O                                  _,.=*.                             O *
-`                   * O                          __,.=*"'      ".                           O *
-`                   * O                         \      _  .=**"'`                           O *
-`                   * O                          "===*"H  H                                 O *
-`                   * O                                H  H                                 O *
-`                   * O                               _H  H___...===***"""***q.             O *
-`                   * O           __......====****"""''    ___...===****==.___.b            O *
-`                   * O           \      ___...===***""H  H                                 O *
-`                   * O            `**""'        qxp   H  H   qxp                           O *
-`                   * O                          l l   H  H   l l                           O *
-`                   * O                          l l   H  H   l l                           O *
-`                   * O                    ___...a l   H  H   l `***""'````*q.              O *
-`                   * O             .q"""' ___..., l   H  H   l ..=====..__   \             O *
-`                   * O              `a*"''      l l   H  H   l l          ``"'             O *
-`                   * O                          l l   H  H   l l             .             O *
-`                   * O                          l l   H  H   l l            yH             O *
-`                   * O                         _i b   H  H   l l           y H             O *
-`                   * O                     _-*' _-*   H  H   b  b         y  j             O *
-`                   * O                 _-*' _-*'      H  H    b  '*=====*'  y              O *
-`                   * O            .d""' _-*'          H  H     b-_________.d               O *
-`                   * O             `a*"'              H  H                                 O *
-`                   * O                                q  p                                 O *
-`                   * O                                'qp'                                 O *
-`                   * O                                                                     O *
-`                   * O                                                                     O *
-`                   * O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O O *
-`                   * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- 
-
-
-
-
-
-
-
-
-
-*/

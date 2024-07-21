@@ -1,15 +1,15 @@
 package frc.robot.utils;
 
 public class PID {
-	private double kp;
-	private double ki;
-	private double kd;
+	private final double kp;
+	private final double ki;
+	private final double kd;
 
-	private volatile double Integral;
-	private volatile double errorArray[];
+	private double Integral;
+	private double errorArray[];
 
-	private volatile int thisError;
-	private volatile int lastError;
+	private int thisError;
+	private int lastError;
 
 	public PID(double _kp, double _ki, double _kd) {
 		kp = _kp;
