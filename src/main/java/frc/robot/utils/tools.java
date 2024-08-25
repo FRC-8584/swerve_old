@@ -1,6 +1,6 @@
 package frc.robot.utils;
 
-public class tools {
+public class Tools {
 	//vector (x, y) convert to degrees 
 	public static double toDegrees(final double x, final double y) {
 		if(x == 0 && y == 0) return 0;
@@ -26,5 +26,18 @@ public class tools {
 		pos = pos > max ? max : pos;
 
 		return pos;
+	}
+
+	//bounding 1 ~ -1
+	public static double bounding(double pos) {
+		pos = pos < -1 ? -1 : pos;
+		pos = pos > 1 ? 1 : pos;
+
+		return pos;
+	}
+
+	//check deadband
+	public static double deadband(double value, final double deadbandValue) {
+		return -deadbandValue < value && value < deadbandValue ? 0 : value;
 	}
 }

@@ -1,12 +1,13 @@
 package frc.robot.utils;
 
 public class PID {
-	private final double kp;
-	private final double ki;
-	private final double kd;
+	private double kp;
+	private double ki;
+	private double kd;
 
 	private double Integral;
 	private double errorArray[];
+	private double deadband;
 
 	private int thisError;
 	private int lastError;
@@ -16,10 +17,15 @@ public class PID {
 		ki = _ki;
 		kd = _kd;
 
+		deadband = 0;
 		resetIntergral();
 	}
 
-	public double calculate(double error) {
+	public double calculate(final double error) {
+		if(-deadband < error && error < deadband){
+			resetIntergral();
+			return 0;
+		}
 		thisError++;
 		if(thisError == 50) thisError = 0;
 
@@ -40,8 +46,12 @@ public class PID {
 		return P + I + D;
 	}
 
+	public void setDeadband(final double deadband){
+		this.deadband = deadband;
+	}
+
 	public void resetIntergral() {
-		errorArray = new double[50];
+		errorArray = new double[50];// 1s
 		Integral = 0;
 
 		thisError = 0;

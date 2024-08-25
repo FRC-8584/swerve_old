@@ -1,27 +1,33 @@
 package frc.robot;
 
-import frc.robot.commands.*;
-import frc.robot.subsystems.*;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj.Joystick;
 
+/*** subsystems ***/
+
+import frc.robot.subsystems.Swerve;
+
+/*** commands ***/
+
+import frc.robot.commands.JoystickSwerve;
+
 public class RobotContainer {
-  private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
-  
-  private final Joystick driver1 = new Joystick(0);
+  private final Swerve swerve = new Swerve();
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
+  private final Joystick js1 = new Joystick(Constants.OperatorConstants.Player1Port);
+
   public RobotContainer() {
-    swerveSubsystem.setDefaultCommand(new SwerveJoystickCmd(
-      swerveSubsystem, 
-      () -> driver1.getX(), 
-      () -> -driver1.getY(), 
-      () -> driver1.getRawAxis(4)));
-    
+    player1CommandList();
   }
 
-  public Command getAutonomousCommand() {
-    return new PrintCommand("87");
+  private void player1CommandList() {
+    // swerve
+    swerve.setDefaultCommand(new JoystickSwerve(
+      swerve, 
+      ()->js1.getX(),
+      ()->js1.getY(), 
+      ()->js1.getRawAxis(4))
+    );
   }
+
+  
 }
