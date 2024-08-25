@@ -12,8 +12,8 @@ public class Tools {
 
 	//degrees convert to vector (x, y) 
 	public static double[] toVector(final double radius, double angle) {
-    if(angle < 0) angle += 360;
-    else if(angle > 360) angle -= 360;
+		angle = angle < 0 ? angle + 360 : angle;
+		angle = angle > 360 ? angle - 360 : angle;
 
 		final double rad = angle * 0.0174533;//angle * 3.1415926 / 180.0
 
